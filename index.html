@@ -1,13 +1,388 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Hola questa è una prova !</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <h1>questa è una provaaaa</h1>
-        <p class="n1">1</p>
-        <p class="n2">2</p>
-        <p class="n3">3</p>
-    </body>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Quiz — Conoscere gli algoritmi</title>
+<style>
+  :root {
+    --paper: #f6f3ec;
+    --ink: #1f2a24;
+    --rule: #cdc4ab;
+    --flow-blue: #2f5d6b;
+    --flow-orange: #c2622d;
+    --good: #3f6b3a;
+    --bad: #a3402f;
+    --card: #fffdf8;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Courier New', ui-monospace, Menlo, monospace;
+    padding: 32px 16px 80px;
+    line-height: 1.5;
+  }
+
+  .wrap {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--flow-orange);
+    font-weight: bold;
+  }
+
+  h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(26px, 5vw, 36px);
+    margin: 6px 0 0;
+    font-weight: 700;
+  }
+
+  .progress-bar {
+    margin-top: 14px;
+    height: 6px;
+    background: var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--flow-blue);
+    transition: width 0.3s ease;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    margin-top: 6px;
+    color: #6b6354;
+  }
+
+  .question-card {
+    background: var(--card);
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    padding: 22px;
+    margin-bottom: 18px;
+    box-shadow: 4px 4px 0 var(--rule);
+  }
+
+  .q-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--flow-blue);
+    color: var(--paper);
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 13px;
+    margin-right: 10px;
+  }
+
+  .q-text {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    text-align: left;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+    transition: transform 0.08s ease, background 0.15s ease;
+  }
+
+  .option:hover:not(:disabled) {
+    background: #ece6d6;
+    transform: translateX(2px);
+  }
+
+  .option:disabled {
+    cursor: default;
+  }
+
+  .option .letter {
+    font-weight: bold;
+    color: var(--flow-orange);
+    flex-shrink: 0;
+  }
+
+  .option.correct {
+    background: #e3ede1;
+    border-color: var(--good);
+    color: var(--good);
+  }
+
+  .option.wrong {
+    background: #f3e1dc;
+    border-color: var(--bad);
+    color: var(--bad);
+  }
+
+  .feedback {
+    margin-top: 12px;
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    display: none;
+  }
+
+  .feedback.show { display: block; }
+
+  .feedback.good {
+    background: #e3ede1;
+    color: var(--good);
+    border-left: 4px solid var(--good);
+  }
+
+  .feedback.bad {
+    background: #f3e1dc;
+    color: var(--bad);
+    border-left: 4px solid var(--bad);
+  }
+
+  .retry-btn {
+    margin-top: 10px;
+    font-family: inherit;
+    font-size: 13px;
+    background: none;
+    border: 1.5px solid var(--bad);
+    color: var(--bad);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .retry-btn:hover { background: var(--bad); color: var(--paper); }
+
+  .summary {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 26px;
+    text-align: center;
+    display: none;
+  }
+  .summary.show { display: block; }
+  .summary h2 {
+    font-family: Georgia, serif;
+    margin: 0 0 8px;
+    font-size: 24px;
+  }
+  .summary .score {
+    font-size: 40px;
+    font-weight: bold;
+    color: #e8d9a8;
+    margin: 8px 0;
+  }
+  .summary p { font-size: 14px; color: #d8d2c2; margin: 4px 0; }
+
+  .restart-btn {
+    margin-top: 16px;
+    font-family: inherit;
+    background: var(--flow-orange);
+    color: var(--paper);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .restart-btn:hover { opacity: 0.9; }
+
+  #app { display: none; }
+  #app.show { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Lezione 1 — Verifica</div>
+    <h1>Algoritmi e linguaggi</h1>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">Domanda 1 di 5</div>
+  </header>
+
+  <div id="app" class="show"></div>
+
+  <div class="summary" id="summary">
+    <h2>Quiz completato</h2>
+    <div class="score" id="scoreText">0 / 5</div>
+    <p id="scoreNote"></p>
+    <button class="restart-btn" onclick="restart()">Riprova il quiz</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    text: "Qual è la definizione più semplice di algoritmo?",
+    options: [
+      "Un linguaggio di programmazione",
+      "Un metodo di elaborazione che da dati iniziali produce dei risultati",
+      "Un disegno che rappresenta un problema",
+      "Una macchina capace di eseguire calcoli"
+    ],
+    correct: 1
+  },
+  {
+    text: "Quale caratteristica garantisce che, con gli stessi dati di partenza, un algoritmo dia sempre lo stesso risultato?",
+    options: ["Finitezza", "Completezza", "Riproducibilità", "Generalità"],
+    correct: 2
+  },
+  {
+    text: 'Perché NON si può scrivere un algoritmo per "vincere al totocalcio"?',
+    options: [
+      "Perché richiederebbe troppi anni",
+      "Perché manca un esecutore capace di farlo in modo deterministico",
+      "Perché il problema è troppo semplice",
+      "Perché non esistono dati in ingresso"
+    ],
+    correct: 1
+  },
+  {
+    text: "Qual è la sequenza corretta del processo che porta dal problema alla macchina?",
+    options: [
+      "Algoritmo → Problema → Programma",
+      "Problema → Programma → Algoritmo",
+      "Problema → Algoritmo → Programma",
+      "Programma → Algoritmo → Problema"
+    ],
+    correct: 2
+  },
+  {
+    text: 'Cosa indica la caratteristica di "realizzabilità" di un algoritmo?',
+    options: [
+      "Che funziona per ogni caso della stessa classe di problemi",
+      "Che le istruzioni sono elementari e davvero eseguibili da chi le riceve",
+      "Che termina in un numero finito di passi",
+      "Che ogni situazione possibile è prevista"
+    ],
+    correct: 1
+  }
+];
+
+let current = 0;
+let score = 0;
+let answeredCorrectly = false;
+
+const letters = ["A", "B", "C", "D"];
+
+function render() {
+  const app = document.getElementById("app");
+  const q = questions[current];
+  answeredCorrectly = false;
+
+  app.innerHTML = `
+    <div class="question-card">
+      <div class="q-text"><span class="q-number">${current + 1}</span>${q.text}</div>
+      <div class="options" id="optionsWrap">
+        ${q.options.map((opt, i) => `
+          <button class="option" data-index="${i}" onclick="selectOption(${i})">
+            <span class="letter">${letters[i]}</span><span>${opt}</span>
+          </button>
+        `).join("")}
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  `;
+
+  updateProgress();
+}
+
+function updateProgress() {
+  document.getElementById("progressFill").style.width = `${(current / questions.length) * 100}%`;
+  document.getElementById("progressLabel").textContent = `Domanda ${current + 1} di ${questions.length}`;
+}
+
+function selectOption(index) {
+  if (answeredCorrectly) return;
+
+  const q = questions[current];
+  const buttons = document.querySelectorAll(".option");
+  const feedback = document.getElementById("feedback");
+
+  if (index === q.correct) {
+    buttons[index].classList.add("correct");
+    buttons.forEach(b => b.disabled = true);
+    feedback.className = "feedback show good";
+    feedback.innerHTML = "✓ Esatto! Passiamo alla prossima.";
+    answeredCorrectly = true;
+    score++;
+
+    setTimeout(() => {
+      current++;
+      if (current < questions.length) {
+        render();
+      } else {
+        showSummary();
+      }
+    }, 1100);
+  } else {
+    buttons[index].classList.add("wrong");
+    buttons[index].disabled = true;
+    feedback.className = "feedback show bad";
+    feedback.innerHTML = "✗ Non è questa. Riprova con un'altra opzione.";
+  }
+}
+
+function showSummary() {
+  document.getElementById("app").classList.remove("show");
+  document.querySelector(".progress-bar").parentElement.style.opacity = "0.4";
+  const summary = document.getElementById("summary");
+  summary.classList.add("show");
+  document.getElementById("scoreText").textContent = `${score} / ${questions.length}`;
+
+  let note = "";
+  if (score === questions.length) note = "Perfetto! Hai le idee molto chiare sugli algoritmi.";
+  else if (score >= questions.length - 1) note = "Ottimo lavoro, quasi tutto corretto.";
+  else if (score >= questions.length / 2) note = "Buona base, ma vale la pena rivedere qualche concetto.";
+  else note = "Conviene ripassare la lezione prima di andare avanti.";
+  document.getElementById("scoreNote").textContent = note;
+}
+
+function restart() {
+  current = 0;
+  score = 0;
+  document.getElementById("summary").classList.remove("show");
+  document.querySelector(".progress-bar").parentElement.style.opacity = "1";
+  document.getElementById("app").classList.add("show");
+  render();
+}
+
+render();
+</script>
+</body>
 </html>
